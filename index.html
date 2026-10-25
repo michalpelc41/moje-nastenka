@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Soukromá nástěnka pro poznámky a nápady s přihlášením přes Supabase.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Moje nástěnka</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Přejít na obsah</a>
+  <header class="header wrap">
+    <a class="brand" href="./" aria-label="Moje nástěnka – úvod"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>moje nástěnka<span class="brand-dot">.</span></a>
+    <div id="account" class="account" hidden><span id="user-email"></span><button id="logout" class="button small secondary" type="button">Odhlásit se</button></div>
+    <span id="header-caption" class="header-caption">Místo pro vaše myšlenky</span>
+  </header>
+  <main id="main" class="wrap">
+    <div id="setup" class="setup" hidden role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <div><strong>Čeká na připojení k Supabase</strong><p id="setup-text">Doplňte veřejné údaje do config.js a spusťte SQL schéma podle README. Zatím se žádná data neukládají.</p></div>
+    </div>
+    <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+    <section id="auth-view" class="auth-layout" aria-label="Přihlášení do nástěnky">
+      <div class="intro">
+        <span class="eyebrow"><span class="short-line"></span> MALÝ PROSTOR. VELKÉ NÁPADY.</span>
+        <h1>Všechno důležité.<br>Na jednom <em>místě.</em></h1>
+        <p class="lead">Rychlá myšlenka, plán na zítra nebo něco, na co nechcete zapomenout. Dejte tomu místo na své nástěnce.</p>
+        <div class="paper-scene" aria-label="Ilustrace poznámkových bloků">
+          <div class="paper paper-back" aria-hidden="true"><span>JEDNA MYŠLENKA STAČÍ</span><div class="scribble">Nápad → první krok</div><div class="paper-line"></div><div class="paper-line short"></div></div>
+          <div class="paper paper-front" aria-hidden="true"><span>PROSTOR PRO TO PODSTATNÉ</span><p>Méně chaosu.<br>Více dobrých nápadů.</p><span class="paper-star">✳</span></div>
+          <span class="illustration-caption">Vaše poznámky. Vaše tempo.</span>
+        </div>
+      </div>
+      <div class="auth-card">
+        <span class="eyebrow">VÁŠ SOUKROMÝ PROSTOR</span>
+        <h2 id="auth-title">Vítejte zpátky</h2>
+        <p id="auth-description" class="muted">Přihlaste se a navazujte tam, kde jste skončili.</p>
+        <div class="auth-tabs" role="group" aria-label="Způsob přístupu"><button id="login-tab" type="button" class="active" aria-pressed="true">Přihlášení</button><button id="signup-tab" type="button" aria-pressed="false">Registrace</button></div>
+        <form id="auth-form">
+          <fieldset id="auth-fields" disabled>
+            <label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" placeholder="vy@priklad.cz" required maxlength="254">
+            <label for="password">Heslo</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Vaše heslo" required>
+            <p id="password-hint" class="field-hint" hidden>Alespoň 8 znaků. Použijte jedinečné heslo.</p>
+            <button id="auth-submit" class="button primary full" type="submit">Přihlásit se <span aria-hidden="true">↗</span></button>
+          </fieldset>
+        </form>
+        <p class="privacy-note"><span aria-hidden="true">◇</span> Obsah nástěnky uvidíte pouze vy po přihlášení.</p>
+      </div>
+    </section>
+    <section id="board-view" class="board" hidden aria-label="Moje poznámky">
+      <div class="board-heading"><div><span class="eyebrow">VÁŠ PROSTOR PRO MYŠLENKY</span><h1>Moje nástěnka<span class="brand-dot">.</span></h1><p class="muted">Co si dnes chcete uchovat?</p></div><button id="add-note" class="button primary" type="button"><span aria-hidden="true">＋</span> Nová poznámka</button></div>
+      <div class="toolbar"><label class="search"><span aria-hidden="true">⌕</span><span class="sr-only">Hledat v poznámkách</span><input id="search" type="search" placeholder="Hledat v poznámkách…" maxlength="200"></label><div class="toolbar-meta"><span id="note-count" role="status"></span><button id="refresh" class="button small secondary" type="button">↻ Obnovit</button></div></div>
+      <p id="load-state" class="muted" role="status" hidden>Načítání poznámek…</p>
+      <div id="notes" class="notes"></div>
+      <div id="empty" class="empty" hidden><span class="empty-icon" aria-hidden="true">＋</span><h2 id="empty-title">Tady začíná váš další nápad</h2><p id="empty-description">Přidejte první poznámku. Na všechno ostatní je čas.</p><button id="empty-add" class="button secondary" type="button">Vytvořit první poznámku</button></div>
+    </section>
+    <noscript><p class="notice error">Pro nástěnku je potřeba zapnout JavaScript.</p></noscript>
+  </main>
+  <footer class="footer wrap"><span>Malé poznámky. Volná hlava.</span><span id="connection-state">Ověřuji konfiguraci…</span></footer>
+  <dialog id="editor" aria-labelledby="editor-title">
+    <form id="note-form">
+      <div class="dialog-heading"><div><span class="eyebrow">MYŠLENKA, KTERÁ ZŮSTANE</span><h2 id="editor-title">Nová poznámka</h2></div><button id="close-editor" type="button" class="icon-button" aria-label="Zavřít editor">×</button></div>
+      <fieldset id="note-fields">
+        <label for="note-title">Nadpis <span class="optional">nepovinný</span></label><input id="note-title" maxlength="120" placeholder="Dejte myšlence jméno" autocomplete="off">
+        <label for="note-content">Text poznámky</label><textarea id="note-content" rows="8" maxlength="5000" placeholder="Co máte na mysli?" required></textarea><div id="char-count" class="char-count">0 / 5 000</div>
+        <fieldset class="color-picker"><legend>Barva poznámky</legend><label class="swatch sand"><input type="radio" name="color" value="sand" checked><span>Písková</span></label><label class="swatch sage"><input type="radio" name="color" value="sage"><span>Šalvějová</span></label><label class="swatch lavender"><input type="radio" name="color" value="lavender"><span>Levandulová</span></label><label class="swatch rose"><input type="radio" name="color" value="rose"><span>Růžová</span></label></fieldset>
+        <p id="editor-error" class="inline-error" role="alert" hidden></p>
+        <div class="dialog-actions"><button id="cancel-editor" type="button" class="button secondary">Zrušit</button><button id="save-note" type="submit" class="button primary">Uložit poznámku</button></div>
+      </fieldset>
+    </form>
+  </dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+    <form id="delete-form"><h2 id="delete-title">Smazat poznámku?</h2><p id="delete-description">Poznámka bude trvale odstraněna. Tuto akci nelze vrátit.</p><p id="delete-error" class="inline-error" role="alert" hidden></p><fieldset id="delete-fields"><div class="dialog-actions"><button id="cancel-delete" class="button secondary" type="button" autofocus>Ponechat</button><button id="confirm-delete" class="button danger" type="submit">Smazat poznámku</button></div></fieldset></form>
+  </dialog>
+</body>
+</html>
