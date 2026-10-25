@@ -1,9 +1,11 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 import { COLORS, NoteValidationError, validateConfig, validateNote, filterNotes, friendlyError } from "./core.js";
+import { createNoteEditor, renderNoteContent } from "./rich-text.js?v=2";
 
 const $ = id => document.getElementById(id);
 const state = { client: null, user: null, notes: [], mode: "login", editing: null, deleting: null, loading: false, saving: false, removing: false, loadVersion: 0 };
 const dateFormat = new Intl.DateTimeFormat("cs-CZ", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const noteEditor = createNoteEditor(updateCounter);
 
 function notice(message, error = false) {
   $("notice").textContent = message;
@@ -34,10 +36,9 @@ function createCard(note) {
     title.textContent = note.title;
     card.append(title);
   }
-  const content = document.createElement("p");
+  const content = document.createElement("div");
   content.className = "note-content";
-  // Text je vždy prostý text. Nikdy ho nevkládáme jako HTML.
-  content.textContent = note.content;
+  renderNoteContent(content, note);
   card.append(content);
   const footer = document.createElement("div");
   footer.className = "note-footer";
@@ -93,7 +94,7 @@ async function loadNotes() {
     // Stránkování brání tichému oříznutí na výchozí limit Supabase.
     for (let from = 0; ; from += 200) {
       const { data, error } = await state.client.from("notes")
-        .select("id,title,content,color,created_at,updated_at")
+        .select("id,title,content,content_format,color,created_at,updated_at")
         .eq("user_id", userId)
         .order("updated_at", { ascending: false }).order("id", { ascending: false })
         .range(from, from + 199);
@@ -102,7 +103,7 @@ async function loadNotes() {
       rows.push(...data);
       if (data.length < 200) break;
     }
-    state.notes = [...new Map(rows.map(row => [row.id, row])).values()];
+    state.notes = [...new Map(rows.map(row => [row.id, row])).values()].map(row => ({ ...row, searchText: row.content_format === "html" ? noteEditor.plainText(row.content) : row.content }));
     state.loading = false;
     renderNotes();
     $("load-state").hidden = true;
@@ -139,6 +140,7 @@ async function applySession(session) {
   $("editor").close();
   $("delete-dialog").close();
   $("note-form").reset();
+  noteEditor.clear();
   state.editing = null;
   state.deleting = null;
   notice("");
@@ -155,18 +157,22 @@ function openEditor(note = null) {
   state.editing = note?.id ?? null;
   $("note-form").reset();
   $("note-title").value = note?.title ?? "";
-  $("note-content").value = note?.content ?? "";
+  noteEditor.setNote(note);
   const color = COLORS.includes(note?.color) ? note.color : "sand";
   document.querySelector(`input[name="color"][value="${color}"]`).checked = true;
   $("editor-title").textContent = note ? "Upravit poznámku" : "Nová poznámka";
   $("editor-error").hidden = true;
   updateCounter();
   $("editor").showModal();
-  (note?.title ? $("note-title") : $("note-content")).focus();
+  if (note?.title) $("note-title").focus(); else noteEditor.focus();
 }
 
 function closeEditor() { if (!state.saving) $("editor").close(); }
-function updateCounter() { $("char-count").textContent = `${[...$("note-content").value].length.toLocaleString("cs-CZ")} / 5 000`; }
+function updateCounter() {
+  const length = [...noteEditor.text()].length;
+  $("char-count").textContent = `${length.toLocaleString("cs-CZ")} / 5 000`;
+  $("char-count").classList.toggle("over-limit", length > 5000);
+}
 
 $("login-tab").addEventListener("click", () => setMode("login"));
 $("signup-tab").addEventListener("click", () => setMode("signup"));
@@ -174,10 +180,12 @@ $("search").addEventListener("input", renderNotes);
 $("refresh").addEventListener("click", loadNotes);
 $("add-note").addEventListener("click", () => openEditor());
 $("empty-add").addEventListener("click", () => openEditor());
-$("note-content").addEventListener("input", updateCounter);
 $("close-editor").addEventListener("click", closeEditor);
 $("cancel-editor").addEventListener("click", closeEditor);
-$("editor").addEventListener("cancel", event => { if (state.saving) event.preventDefault(); });
+$("editor").addEventListener("cancel", event => {
+  if (state.saving) event.preventDefault();
+  else if (noteEditor.isLinkOpen()) { event.preventDefault(); noteEditor.closeLink(); }
+});
 $("cancel-delete").addEventListener("click", () => { if (!state.removing) $("delete-dialog").close(); });
 $("delete-dialog").addEventListener("cancel", event => { if (state.removing) event.preventDefault(); });
 
@@ -228,10 +236,15 @@ $("note-form").addEventListener("submit", async event => {
   state.saving = true;
   $("editor-error").hidden = true;
   $("note-fields").disabled = true;
+  noteEditor.enable(false);
   $("close-editor").disabled = true;
   $("save-note").textContent = "Ukládání…";
   try {
-    const note = validateNote($("note-title").value, $("note-content").value, document.querySelector('input[name="color"]:checked').value);
+    if (noteEditor.isLinkOpen()) throw new NoteValidationError("Nejdřív dokončete vložení odkazu nebo jej zrušte.");
+    const note = validateNote($("note-title").value, noteEditor.text(), document.querySelector('input[name="color"]:checked').value);
+    note.content = noteEditor.html();
+    note.content_format = "html";
+    if (note.content.length > 50000) throw new NoteValidationError("Poznámka obsahuje příliš mnoho formátování. Zjednodušte ji pomocí tlačítka Vymazat formátování.");
     // user_id přidává databáze pomocí auth.uid(); klient jej nezadává.
     const query = state.editing
       ? state.client.from("notes").update(note).eq("id", state.editing).eq("user_id", userId)
@@ -249,6 +262,7 @@ $("note-form").addEventListener("submit", async event => {
   } finally {
     state.saving = false;
     $("note-fields").disabled = false;
+    noteEditor.enable(true);
     $("close-editor").disabled = false;
     $("save-note").textContent = "Uložit poznámku";
   }

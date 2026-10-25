@@ -1,7 +1,11 @@
 # Moje nástěnka
 
-Česká soukromá nástěnka v HTML/CSS/JavaScript s přihlášením přes Supabase Auth a databází PostgreSQL.
+Česká soukromá nástěnka s přihlašováním přes Supabase Auth a databází PostgreSQL.
 
-Poznámky nejsou součástí tohoto repozitáře; přístup k nim chrání přihlášení a RLS v databázi. Každý uživatel spravuje pouze vlastní příspěvky. Soubor config.js obsahuje pouze veřejnou klientskou konfiguraci.
+Vizuální editor podporuje tučné písmo, kurzívu, podtržení, nadpisy odstavců, odrážkové a číslované seznamy, citace a odkazy. Starší poznámky zůstávají prostým textem; nové formátování čistí DOMPurify.
 
-Nasazení: GitHub Pages z větve main, adresář /(root). Aplikace nepotřebuje sestavení. Pro lokální spuštění použijte statický HTTP server, například python3 -m http.server 8000.
+Každý uživatel spravuje pouze vlastní poznámky. Data a relace nejsou součástí repozitáře. Soubor config.js obsahuje veřejnou klientskou konfiguraci.
+
+Web: https://michalpelc41.github.io/moje-nastenka/
+
+GitHub Pages: větev main, /(root). Žádný build. Editor Quill a DOMPurify jsou lokálně v vendor/, včetně licencí.

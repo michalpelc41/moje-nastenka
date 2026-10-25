@@ -7,8 +7,9 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Moje nástěnka</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.js"></script>
+  <link rel="stylesheet" href="./vendor/quill.snow.css">
+  <link rel="stylesheet" href="./styles.css?v=2">
+  <script type="module" src="./app.js?v=2"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Přejít na obsah</a>
@@ -65,7 +66,21 @@
       <div class="dialog-heading"><div><span class="eyebrow">MYŠLENKA, KTERÁ ZŮSTANE</span><h2 id="editor-title">Nová poznámka</h2></div><button id="close-editor" type="button" class="icon-button" aria-label="Zavřít editor">×</button></div>
       <fieldset id="note-fields">
         <label for="note-title">Nadpis <span class="optional">nepovinný</span></label><input id="note-title" maxlength="120" placeholder="Dejte myšlence jméno" autocomplete="off">
-        <label for="note-content">Text poznámky</label><textarea id="note-content" rows="8" maxlength="5000" placeholder="Co máte na mysli?" required></textarea><div id="char-count" class="char-count">0 / 5 000</div>
+        <label id="content-label">Text poznámky</label>
+        <div class="rich-field">
+          <div id="format-toolbar" role="toolbar" aria-label="Formátování poznámky">
+            <span class="ql-formats"><button type="button" class="ql-bold" aria-label="Tučné písmo" title="Tučné písmo (Ctrl/Cmd+B)"></button><button type="button" class="ql-italic" aria-label="Kurzíva" title="Kurzíva (Ctrl/Cmd+I)"></button><button type="button" class="ql-underline" aria-label="Podtržení" title="Podtržení (Ctrl/Cmd+U)"></button></span>
+            <span class="ql-formats"><button type="button" class="ql-header" value="2" aria-label="Nadpis odstavce" title="Nadpis odstavce"></button><button type="button" class="ql-list" value="bullet" aria-label="Odrážkový seznam" title="Odrážkový seznam"></button><button type="button" class="ql-list" value="ordered" aria-label="Číslovaný seznam" title="Číslovaný seznam"></button><button type="button" class="ql-blockquote" aria-label="Citace" title="Citace"></button></span>
+            <span class="ql-formats"><button type="button" id="insert-link" class="link-tool" aria-label="Vložit nebo upravit odkaz" title="Vložit nebo upravit odkaz">↗</button><button type="button" class="ql-clean" aria-label="Vymazat formátování" title="Vymazat formátování"></button></span>
+          </div>
+          <div id="note-content"></div>
+        </div>
+        <div id="link-panel" class="link-panel" hidden>
+          <label for="link-url">Adresa odkazu</label><input id="link-url" type="url" inputmode="url" placeholder="https://priklad.cz" aria-describedby="link-hint" maxlength="2048">
+          <p id="link-hint" class="field-hint">Označte text, který má být odkazem, nebo vložte samotnou adresu.</p><p id="link-error" class="inline-error" role="alert" hidden></p>
+          <div class="link-actions"><button id="apply-link" class="button small primary" type="button">Vložit odkaz</button><button id="remove-link" class="button small secondary" type="button">Odebrat odkaz</button><button id="cancel-link" class="button small secondary" type="button">Zrušit</button></div>
+        </div>
+        <div id="char-count" class="char-count">0 / 5 000</div>
         <fieldset class="color-picker"><legend>Barva poznámky</legend><label class="swatch sand"><input type="radio" name="color" value="sand" checked><span>Písková</span></label><label class="swatch sage"><input type="radio" name="color" value="sage"><span>Šalvějová</span></label><label class="swatch lavender"><input type="radio" name="color" value="lavender"><span>Levandulová</span></label><label class="swatch rose"><input type="radio" name="color" value="rose"><span>Růžová</span></label></fieldset>
         <p id="editor-error" class="inline-error" role="alert" hidden></p>
         <div class="dialog-actions"><button id="cancel-editor" type="button" class="button secondary">Zrušit</button><button id="save-note" type="submit" class="button primary">Uložit poznámku</button></div>

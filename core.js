@@ -28,7 +28,7 @@ export function validateNote(title, content, color) {
 
 export function filterNotes(notes, query) {
   const normalized = query.trim().toLocaleLowerCase("cs");
-  return notes.filter(note => `${note.title}\n${note.content}`.toLocaleLowerCase("cs").includes(normalized));
+  return notes.filter(note => `${note.title}\n${note.searchText ?? note.content}`.toLocaleLowerCase("cs").includes(normalized));
 }
 
 export function friendlyError(error) {
@@ -38,7 +38,7 @@ export function friendlyError(error) {
   if (["over_request_rate_limit", "over_email_send_rate_limit"].includes(code) || error?.status === 429) return "Příliš mnoho pokusů. Chvíli počkejte a zkuste to znovu.";
   if (["signup_disabled", "email_provider_disabled"].includes(code)) return "Registrace nebo přihlašování e-mailem je v Supabase vypnuté. Kontaktujte správce.";
   if (code === "weak_password") return "Heslo nesplňuje pravidla projektu. Zvolte delší a silnější heslo.";
-  if (["PGRST205", "42P01", "42703"].includes(code)) return "Databáze není připravená. Spusťte supabase/schema.sql podle README.";
+  if (["PGRST205", "PGRST204", "42P01", "42703"].includes(code)) return "Databáze není připravená. Ověřte schéma a migraci 002_rich_text.sql podle README.";
   if (code === "42501") return "Databáze přístup nepovolila. Ověřte přihlášení, oprávnění a RLS podle README.";
   if (code === "23514") return "Poznámka nesplňuje pravidla: text je povinný, nadpis má nejvýše 120 a text 5 000 znaků.";
   if (code === "PGRST116") return "Poznámka už není dostupná. Obnovte nástěnku a zkuste to znovu.";
