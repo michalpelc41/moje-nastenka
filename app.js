@@ -127,7 +127,7 @@ async function applySession(session) {
   $("auth-view").hidden = signedIn;
   $("board-view").hidden = !signedIn;
   $("account").hidden = !signedIn;
-  $("header-caption").hidden = signedIn;
+  $("header-caption").hidden = false;
   $("user-email").textContent = state.user?.email ?? "";
   if (previousId === state.user?.id) return;
   ++state.loadVersion; // Zahoď pozdě doběhnuté dotazy předchozího účtu.

@@ -8,15 +8,15 @@
   <title>Moje nástěnka</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./vendor/quill.snow.css">
-  <link rel="stylesheet" href="./styles.css?v=3">
-  <script type="module" src="./app.js?v=2"></script>
+  <link rel="stylesheet" href="./styles.css?v=4">
+  <script type="module" src="./app.js?v=4"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Přejít na obsah</a>
   <header class="header wrap">
     <a class="brand" href="./" aria-label="DVPP – úvod"><img class="brand-logo" src="./dvpp-logo.png" alt="Další vzdělávání pedagogických pracovníků" width="512" height="272"></a>
+    <div class="header-copy"><div class="header-title">Nástěnka DVPP</div><small id="header-caption" class="header-caption">Poznámky a podklady na jednom místě</small></div>
     <div id="account" class="account" hidden><span id="user-email"></span><button id="logout" class="button small secondary" type="button">Odhlásit se</button></div>
-    <span id="header-caption" class="header-caption">Místo pro vaše myšlenky</span>
   </header>
   <main id="main" class="wrap">
     <div id="setup" class="setup" hidden role="status">
@@ -29,11 +29,6 @@
         <span class="eyebrow"><span class="short-line"></span> MALÝ PROSTOR. VELKÉ NÁPADY.</span>
         <h1>Všechno důležité.<br>Na jednom <em>místě.</em></h1>
         <p class="lead">Rychlá myšlenka, plán na zítra nebo něco, na co nechcete zapomenout. Dejte tomu místo na své nástěnce.</p>
-        <div class="paper-scene" aria-label="Ilustrace poznámkových bloků">
-          <div class="paper paper-back" aria-hidden="true"><span>JEDNA MYŠLENKA STAČÍ</span><div class="scribble">Nápad → první krok</div><div class="paper-line"></div><div class="paper-line short"></div></div>
-          <div class="paper paper-front" aria-hidden="true"><span>PROSTOR PRO TO PODSTATNÉ</span><p>Méně chaosu.<br>Více dobrých nápadů.</p><span class="paper-star">✳</span></div>
-          <span class="illustration-caption">Vaše poznámky. Vaše tempo.</span>
-        </div>
       </div>
       <div class="auth-card">
         <span class="eyebrow">VÁŠ SOUKROMÝ PROSTOR</span>
@@ -52,8 +47,8 @@
       </div>
     </section>
     <section id="board-view" class="board" hidden aria-label="Moje poznámky">
-      <div class="board-heading"><div><span class="eyebrow">VÁŠ PROSTOR PRO MYŠLENKY</span><h1>Moje nástěnka<span class="brand-dot">.</span></h1><p class="muted">Co si dnes chcete uchovat?</p></div><button id="add-note" class="button primary" type="button"><span aria-hidden="true">＋</span> Nová poznámka</button></div>
-      <div class="toolbar"><label class="search"><span aria-hidden="true">⌕</span><span class="sr-only">Hledat v poznámkách</span><input id="search" type="search" placeholder="Hledat v poznámkách…" maxlength="200"></label><div class="toolbar-meta"><span id="note-count" role="status"></span><button id="refresh" class="button small secondary" type="button">↻ Obnovit</button></div></div>
+      <div class="board-heading"><div><span class="eyebrow">VÁŠ PROSTOR PRO MYŠLENKY</span><h1>Moje poznámky</h1><p class="muted">Co si dnes chcete uchovat?</p></div><button id="add-note" class="button primary" type="button">Nová poznámka</button></div>
+      <div class="toolbar"><label class="search"><span>Vyhledat poznámku</span><input id="search" type="search" placeholder="Hledat v poznámkách…" maxlength="200"></label><div class="toolbar-meta"><span id="note-count" role="status"></span><button id="refresh" class="button small secondary" type="button">Obnovit</button></div></div>
       <p id="load-state" class="muted" role="status" hidden>Načítání poznámek…</p>
       <div id="notes" class="notes"></div>
       <div id="empty" class="empty" hidden><span class="empty-icon" aria-hidden="true">＋</span><h2 id="empty-title">Tady začíná váš další nápad</h2><p id="empty-description">Přidejte první poznámku. Na všechno ostatní je čas.</p><button id="empty-add" class="button secondary" type="button">Vytvořit první poznámku</button></div>
